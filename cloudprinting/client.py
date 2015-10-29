@@ -131,13 +131,23 @@ def submit_job(printer, content, title=None, capabilities=None, tags=None,
         # magic default value
         capabilities = [{}]
 
-    files = {"content": (name, content)}
-    data = {"printerid": printer,
-            "title": title,
-            "contentType": content_type or mimetypes.guess_type(name)[0],
-            "capabilities": json.dumps({"capabilities": capabilities})}
+    data = {
+        "printerid": printer,
+        "title": title,
+        "contentType": content_type or mimetypes.guess_type(name)[0],
+        "capabilities": json.dumps({"capabilities": capabilities}),
+    }
+
     if tags:
         data['tag'] = tags
+
     url = CLOUDPRINT_URL + "/submit"
-    r = requests.post(url, data=data, files=files, **kwargs)
+
+    if content_type == 'url' and isinstance(content, str):
+        data['content'] = content
+        r = requests.post(url, data=data, **kwargs)
+    else:
+        files = {"content": (name, content)}
+        r = requests.post(url, data=data, files=files, **kwargs)
+
     return r.json() if r.status_code == requests.codes.ok else r
