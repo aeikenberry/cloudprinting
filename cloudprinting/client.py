@@ -4,8 +4,23 @@ import mimetypes
 from os.path import basename
 import requests
 
-
 CLOUDPRINT_URL = "https://www.google.com/cloudprint"
+
+
+def get_printer(id, **kwargs):
+    """
+    Returns all of the fields of the specified printer, including its
+    capabilities.
+
+    :param      id: printer ID
+    :type       id: string
+    """
+    url = CLOUDPRINT_URL + "/printer"
+    params = {'printerid': id}
+    r = requests.post(url, params=params, **kwargs)
+    if r.status_code != requests.codes.ok:
+        return r
+    return r.json()
 
 
 def get_job(id, printer=None, **kwargs):
