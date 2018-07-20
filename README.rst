@@ -64,6 +64,16 @@ Example::
 
 Change log
 ==========
+0.3.4
+=====
+
+- Adds printer capabilities method
+- Migrates to use ticket (CJT) over deprecated capabilities
+
+0.3.3
+=====
+
+- Adds improvements for URL based content
 
 0.3.2
 =====

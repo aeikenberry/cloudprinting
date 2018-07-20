@@ -4,8 +4,23 @@ import mimetypes
 from os.path import basename
 import requests
 
-
 CLOUDPRINT_URL = "https://www.google.com/cloudprint"
+
+
+def get_printer(id, **kwargs):
+    """
+    Returns all of the fields of the specified printer, including its
+    capabilities.
+
+    :param     id: printer ID
+    :type       id: string
+    """
+    url = CLOUDPRINT_URL + "/printer"
+    params = {'printerid': id}
+    r = requests.post(url, params=params, **kwargs)
+    if r.status_code != requests.codes.ok:
+        return r
+    return r.json()
 
 
 def get_job(id, printer=None, **kwargs):
@@ -87,7 +102,7 @@ def list_printers(**kwargs):
     return r.json()
 
 
-def submit_job(printer, content, title=None, capabilities=None, tags=None,
+def submit_job(printer, content, title=None, ticket=None, tags=None,
                content_type=None, **kwargs):
     """
     Submit a print job.
@@ -96,8 +111,8 @@ def submit_job(printer, content, title=None, capabilities=None, tags=None,
     :type        printer: string
     :param       content: what should be printer
     :type        content: ``(name, file-like)`` pair or path
-    :param  capabilities: capabilities for the printer
-    :type   capabilities: list
+    :param        ticket: CJT "ticket" for the printer
+    :type         ticket: list
     :param         title: title of the print job, should be unique to printer
     :type          title: string
     :param          tags: job tags
@@ -129,15 +144,15 @@ def submit_job(printer, content, title=None, capabilities=None, tags=None,
     if title is None:
         title = name
 
-    if capabilities is None:
+    if ticket is None:
         # magic default value
-        capabilities = [{}]
+        ticket = [{}]
 
     data = {
         "printerid": printer,
         "title": title,
         "contentType": content_type or mimetypes.guess_type(name)[0],
-        "capabilities": json.dumps({"capabilities": capabilities}),
+        "ticket": json.dumps(ticket),
     }
 
     if tags:
